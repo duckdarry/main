@@ -1,1 +1,1 @@
-# ricijs
+# Rich, Daniel, Jan, Rodion
