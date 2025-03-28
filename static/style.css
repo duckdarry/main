@@ -1,0 +1,152 @@
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-top: 30px;
+}
+
+h4 {
+    font-size: 22px;
+    color: #444;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+
+.alert {
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.alert strong {
+    font-weight: bold;
+}
+
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.col-md-6 {
+    width: 45%;
+    min-width: 1000px;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+
+.btn {
+    padding: 10px 20px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: #16a085;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+.btn-success {
+    background-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #6c757d;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+    .row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .col-md-6 {
+        width: 100%;
+    }
+
+    h2 {
+        font-size: 28px;
+    }
+
+    h4 {
+        font-size: 18px;
+    }
+}

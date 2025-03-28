@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Upload CSV - MovieLens Analysis{% endblock %}
+{% block content %}
+  <h2>Upload CSV Data</h2>
+  
+  {% if ratings_filename or movies_filename %}
+    <div class="alert alert-info">
+      <p>Previously uploaded files:</p>
+      <ul>
+        {% if ratings_filename %}
+          <li>Ratings File: <strong>{{ ratings_filename }}</strong></li>
+        {% endif %}
+        {% if movies_filename %}
+          <li>Movies File: <strong>{{ movies_filename }}</strong></li>
+        {% endif %}
+      </ul>
+      <form action="{{ url_for('clear_upload') }}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-danger btn-sm">Clear Current Database Contents</button>
+      </form>
+    </div>
+  {% endif %}
+  
+  <p>You can download the MovieLens dataset from the following sources:</p>
+  <ul>
+    <li><a href="https://grouplens.org/datasets/movielens/" target="_blank">MovieLens Datasets (official site)</a></li>
+    <li><a href="https://files.grouplens.org/datasets/movielens/ml-latest-small.zip" target="_blank">Download ml-latest-small ZIP</a></li>
+  </ul>
+  
+  <!-- CSV augsupielade ratingiem -->
+  <form action="{{ url_for('upload_csv') }}" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="csvFile">Select Ratings CSV File</label>
+      <input type="file" class="form-control-file" id="csvFile" name="csvFile" accept=".csv" 
+             {% if ratings_filename %}disabled{% endif %} required>
+    </div>
+    <button type="submit" class="btn btn-success" 
+            {% if ratings_filename %}disabled{% endif %}>
+      Upload Ratings CSV
+    </button>
+  </form>
+
+  <!-- adaptivais movies upload CSV -->
+  {% if ratings_filename %}
+  <form action="{{ url_for('upload_movies_csv') }}" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="moviesCsvFile">Select Movies CSV File</label>
+      <input type="file" class="form-control-file" id="moviesCsvFile" name="moviesCsvFile" accept=".csv" 
+            {% if movies_filename %}disabled{% endif %}>
+    </div>
+    <button type="submit" class="btn btn-success" 
+            {% if movies_filename %}disabled{% endif %}>
+      Upload Movies CSV
+    </button>
+  </form>
+  {% endif %}
+{% endblock %}

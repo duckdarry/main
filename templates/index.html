@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Home - MovieLens Analysis{% endblock %}
+{% block content %}
+  <div class="jumbotron">
+    <h1 class="display-4">Welcome to the MovieLens Analysis App!</h1>
+    <p class="lead">
+      This web aplicattion allows you to upload and analyze MovieLens datasets.
+    </p>
+    <hr class="my-4">
+    <p>
+      Requirements include:
+      <ul>
+        <li>Multiple pages/views</li>
+        <li>CSV file upload for data import</li>
+        <li>At least one database table with two queries</li>
+        <li>Dynamic data visualizations (histograms, line charts, etc.)</li>
+        <li>Creative use of additional libraries for interactive or advanced visuals</li>
+      </ul>
+    </p>
+    <a class="btn btn-primary btn-lg" href="/upload" role="button">Get Started</a>
+  </div>
+{% endblock %}

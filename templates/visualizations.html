@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Visualizations - MovieLens Analysis
+{% endblock %}
+
+{% block content %}
+  <h2>Data Visualizations</h2>
+
+  {% if no_data %}
+    <div class="alert alert-warning">
+      <strong>No data available!</strong> Please upload a valid CSV file (e.g., ratings.csv from the ml-latest-small dataset) via the 
+      <a href="{{ url_for('upload_csv') }}">upload page</a>.
+    </div>
+  {% else %}
+    <p>Below are dynamically generated charts from our MovieLens dataset.</p>
+
+    <!-- ratinga izkartojums -->
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Rating Distribution</h4>
+        <canvas id="ratingHistogram"></canvas>
+      </div>
+      <!-- perioda rating-->
+      <div class="col-md-6">
+        <h4>Ratings Over Time</h4>
+        <canvas id="ratingsOverTime"></canvas>
+      </div>
+    </div>
+
+    <!-- Filtrs videjam reitingam -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <h4>Filter Average Ratings by Period</h4>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" value="1996-01-01">
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" value="2018-12-31">
+        <button id="applyPeriodFilterBtn" class="btn btn-primary" onclick="fetchChartData()">Apply Period Filter</button>
+      </div>
+    </div>
+
+    <!-- filmu filtrs -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <h4>Filter Movies by Rating Range</h4>
+        <label for="minRatingRange">Min Rating:</label>
+        <input type="number" id="minRatingRange" min="0" max="5" step="0.1" value="0" oninput="updateRangeLabels()">
+        <label for="maxRatingRange">Max Rating:</label>
+        <input type="number" id="maxRatingRange" min="0" max="5" step="0.1" value="5" oninput="updateRangeLabels()">
+        <span id="ratingRangeLabel">0 - 5</span>
+        <button id="applyFilterBtn" class="btn btn-primary" onclick="fetchFilteredMovies()">Apply Filter</button>
+      </div>
+    </div>
+
+    <!-- filtru grafiks filmam -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <h4>Movies within Selected Rating Range</h4>
+        <canvas id="filteredMoviesChart"></canvas>
+      </div>
+    </div>
+
+  {% endif %}
+
+  {% if not no_data %}
+  <script>
+    let ratingHistogramChart = null;
+    let ratingsOverTimeChart = null;
+    let filteredMoviesChart = null; 
+
+    async function fetchChartData() {
+      console.log("fetchChartData() called");
+
+      // periodi
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+
+      try {
+        // iegūst datus
+        let url = "{{ url_for('get_chart_data') }}";
+        if (startDate && endDate) {
+          url += `?start_date=${startDate}&end_date=${endDate}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.error) {
+          console.error("Error fetching chart data:", data.error);
+          return;
+        }
+
+        const ratingLabels = data.rating_labels;
+        const ratingCounts = data.rating_counts;
+        const timeLabels = data.time_labels;
+        const avgRatings = data.avg_ratings;
+
+        renderCharts(ratingLabels, ratingCounts, timeLabels, avgRatings);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    }
+
+    function renderCharts(ratingLabels, ratingCounts, timeLabels, avgRatings) {
+      console.log("Rendering charts with data:", { ratingLabels, ratingCounts, timeLabels, avgRatings });
+
+      // reseto chartu
+      if (ratingHistogramChart) {
+        ratingHistogramChart.destroy();
+      }
+      if (ratingsOverTimeChart) {
+        ratingsOverTimeChart.destroy();
+      }
+
+      const ratingHistogramCtx = document.getElementById('ratingHistogram').getContext('2d');
+      ratingHistogramChart = new Chart(ratingHistogramCtx, {
+        type: 'bar',
+        data: {
+          labels: ratingLabels,
+          datasets: [{
+            label: 'Number of Ratings',
+            data: ratingCounts,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Count' } },
+            x: { title: { display: true, text: 'Rating' } }
+          },
+          plugins: { title: { display: true, text: 'Rating Distribution' } }
+        }
+      });
+
+      const ratingsOverTimeCtx = document.getElementById('ratingsOverTime').getContext('2d');
+      ratingsOverTimeChart = new Chart(ratingsOverTimeCtx, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'Average Rating',
+            data: avgRatings,
+            backgroundColor: 'rgba(255, 99, 132, 0.4)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            fill: true,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: { beginAtZero: false, title: { display: true, text: 'Average Rating' } },
+            x: { title: { display: true, text: 'Time' } }
+          },
+          plugins: { title: { display: true, text: 'Ratings Over Time' } }
+        }
+      });
+    }
+
+    function updateRangeLabels() {
+      const minRating = document.getElementById("minRatingRange").value;
+      const maxRating = document.getElementById("maxRatingRange").value;
+      document.getElementById("ratingRangeLabel").textContent = `${minRating} - ${maxRating}`;
+    }
+
+    async function fetchFilteredMovies() {
+      const minRating = document.getElementById("minRatingRange").value;
+      const maxRating = document.getElementById("maxRatingRange").value;
+      console.log(`Fetching movies with ratings between: ${minRating} and ${maxRating}`);
+      try {
+        const response = await fetch(`{{ url_for('get_filtered_movies') }}?min_rating=${minRating}&max_rating=${maxRating}`);
+        const data = await response.json();
+        if (data.error) {
+          console.error("Error fetching filtered movies:", data.error);
+          return;
+        }
+        renderFilteredMoviesChart(data.movie_titles, data.movie_ratings);
+      } catch (error) {
+        console.error("Error fetching filtered movies:", error);
+      }
+    }
+
+    function renderFilteredMoviesChart(movieTitles, movieRatings) {
+      console.log("Rendering filtered movies with data:", { movieTitles, movieRatings });
+
+      // reseto chartu
+      if (filteredMoviesChart) {
+        filteredMoviesChart.destroy();
+      }
+
+      const filteredMoviesCtx = document.getElementById('filteredMoviesChart').getContext('2d');
+      filteredMoviesChart = new Chart(filteredMoviesCtx, {
+        type: 'bar',
+        data: {
+          labels: movieTitles,
+          datasets: [{
+            label: 'Movie Ratings',
+            data: movieRatings,
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Rating' } },
+            x: { title: { display: true, text: 'Movie Title' } }
+          },
+          plugins: { title: { display: true, text: 'Movies in Rating Range' } }
+        }
+      });
+    }
+
+    fetchChartData();
+  </script>
+  {% endif %}
+{% endblock %}
