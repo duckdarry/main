@@ -319,3 +319,4 @@ def get_filtered_movies():
     
 if __name__ == '__main__':
     app.run(debug=True)
+git commit -m "faili no visual studio code"
